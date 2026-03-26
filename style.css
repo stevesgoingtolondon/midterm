@@ -1,26 +1,31 @@
-body{
-  font-family: Arial;
-  text-align:center;
-  background:#f4f4f4;
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  padding: 20px;
+  text-align: center;
 }
 
-img{
-  width:300px;
-  height:auto;
-  margin:10px;
+#story-image {
+  max-width: 80%;
+  height: auto;
+  margin-bottom: 20px;
 }
 
-button{
-  padding:10px;
-  margin:5px;
-  cursor:pointer;
+p {
+  min-height: 1.5em;
 }
 
-#choices button{
-  display:block;
-  margin:5px auto;
+#choices button,
+#nextBtn,
+#secretBtn {
+  margin: 5px;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-#p1,#p2,#p3{
-  margin:10px;
+#secretInput {
+  padding: 5px;
+  font-size: 14px;
+  width: 150px;
 }
