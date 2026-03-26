@@ -11,9 +11,9 @@ var currentScene = "opening";
 var textIndex = 0;
 
 var scenes = {
-  opening: {
-    img: "classroom.jpg",
-    text: [
+  opening:{
+    img:"classroom.jpg",
+    text:[
       "Kat: Man, it's been a hellva day today. I hear we get a new student...",
       "Kat: I mean, I sure am popular with tha' ladies. (She is not)",
       "Kat: Maybe this girl will be the one?",
@@ -39,52 +39,54 @@ var scenes = {
       "Beatrice: Hey, I'm going to Sheets, do you want anything?",
       "Kat: Ah crap...options...ladies...ladies one at a time please...."
     ],
-    choices: [
+    choices:[
       {text:"Go with Anna", next:"driveAnna"},
       {text:"Go with Beatrice", next:"driveBea"},
       {text:"Stay with Special Week", next:"friends"}
     ]
   },
-  tcwok:{img:"tcwok.jpg",text:["Kat: I want lo mein and Thai tea","Anna: noodles or soup","Kat: Maybe love just isn't for me..","Anna: I don't think you are","Kat: Is this yaori?","Anna: Yes, absolutely.","Ending one:","Yaori","Platonic love SWEEP!!!"],end:true},
-  sheets:{img:"sheets.jpg",text:["Kat: Oh, can I come with you, Beatrice?","Beatrice: Yeah, cmon.","Kat: I shall drive.","*They go to Sheets.*","Beatrice: Depop seller hasn't shipped","Kat: Have you considered killing them","Beatrice: no","Kat: I'll pay","Ending 2: Cringe Ending"],end:true},
-  friends:{img:"lunch.jpg",text:["You all have a nice lunch together."],end:true},
-  secret:{img:"kat.jpg",text:["SECRET ENDING","Kat: You found me...","The End."],end:true},
-  driveAnna:{img:"tcwok.jpg",text:["Kat: I shall drive.","*They drive to T.C. Wok*"],choices:[{text:"Drive confidently",next:"tcwok"},{text:"Drive badly",next:"awkDrive"}]},
-  awkDrive:{img:"tcwok.jpg",text:["Kat: I almost crashed...","Anna: bruh..."],choices:[{text:"Continue anyway",next:"tcwok"}]},
-  driveBea:{img:"sheets.jpg",text:["Kat: I shall drive."],choices:[{text:"Park well",next:"sheets"},{text:"Park badly",next:"beaChoice"}]},
-  beaChoice:{img:"sheets.jpg",text:["Kat: bad parking...","Beatrice: yeah..."],choices:[{text:"Laugh it off",next:"sheets"},{text:"Make it worse",next:"sheets"}]}
+  tcwok:{ img:"tcwok.jpg", text:["Kat: I want lo mein and Thai tea","Anna: noodles or soup","Kat: Maybe love just isn't for me..","Anna: I don't think you are","Kat: Is this yaori?","Anna: Yes, absolutely.","Ending one:","Yaori","Platonic love SWEEP!!!"], end:true },
+  sheets:{ img:"sheets.jpg", text:["Kat: Oh, can I come with you, Beatrice?","Beatrice: Yeah, cmon.","Kat: I shall drive.","*They go to Sheets.*","Beatrice: Depop seller hasn't shipped","Kat: Have you considered killing them","Beatrice: no","Kat: I'll pay","Ending 2: Cringe Ending"], end:true },
+  friends:{ img:"lunch.jpg", text:["You all have a nice lunch together."], end:true },
+  secret:{ img:"kat.jpg", text:["SECRET ENDING","Kat: You found me...","The End."], end:true },
+  driveAnna:{ img:"tcwok.jpg", text:["Kat: I shall drive.","*They drive to T.C. Wok*"], choices:[{text:"Drive confidently", next:"tcwok"},{text:"Drive badly", next:"awkDrive"}] },
+  awkDrive:{ img:"tcwok.jpg", text:["Kat: I almost crashed...","Anna: bruh..."], choices:[{text:"Continue anyway", next:"tcwok"}] },
+  driveBea:{ img:"sheets.jpg", text:["Kat: I shall drive."], choices:[{text:"Park well", next:"sheets"},{text:"Park badly", next:"beaChoice"}] },
+  beaChoice:{ img:"sheets.jpg", text:["Kat: bad parking...","Beatrice: yeah..."], choices:[{text:"Laugh it off", next:"sheets"},{text:"Make it worse", next:"sheets"}] }
 };
 
 function showText(){
   var scene = scenes[currentScene];
-  p1.textContent = scene.text[textIndex]||"";
-  p2.textContent = scene.text[textIndex+1]||"";
-  p3.textContent = scene.text[textIndex+2]||"";
+  p1.textContent = scene.text[textIndex] || "";
+  p2.textContent = scene.text[textIndex+1] || "";
+  p3.textContent = scene.text[textIndex+2] || "";
 }
 
 function nextText(){
   textIndex += 3;
   var scene = scenes[currentScene];
   if(textIndex >= scene.text.length){
-    nextBtn.style.display="none";
+    nextBtn.style.display = "none";
     showChoices();
   }
   showText();
 }
 
 function showChoices(){
-  choicesDiv.innerHTML="";
+  choicesDiv.innerHTML = ""; 
+  choicesDiv.style.display = "block"; // show buttons
   var scene = scenes[currentScene];
   if(!scene.choices) return;
   for(var i=0;i<scene.choices.length;i++){
-    var btn=document.createElement("button");
-    btn.textContent=scene.choices[i].text;
-    btn.onclick=(function(choice){
+    var btn = document.createElement("button");
+    btn.textContent = scene.choices[i].text;
+    btn.onclick = (function(choice){
       return function(){
-        currentScene=choice.next;
-        textIndex=0;
-        img.src=scenes[currentScene].img;
-        nextBtn.style.display="inline";
+        choicesDiv.style.display = "none"; // hide after clicking
+        currentScene = choice.next;
+        textIndex = 0;
+        img.src = scenes[currentScene].img;
+        nextBtn.style.display = "inline";
         showText();
       }
     })(scene.choices[i]);
@@ -92,18 +94,18 @@ function showChoices(){
   }
 }
 
-nextBtn.onclick=nextText;
+nextBtn.onclick = nextText;
 
-secretBtn.onclick=function(){
+secretBtn.onclick = function(){
   if(input.value==="prius"){
+    choicesDiv.style.display = "none"; // hide buttons
     currentScene="secret";
     textIndex=0;
     img.src=scenes.secret.img;
     nextBtn.style.display="inline";
-    choicesDiv.innerHTML="";
     showText();
   }
 }
 
-img.src=scenes[currentScene].img;
+img.src = scenes[currentScene].img;
 showText();
