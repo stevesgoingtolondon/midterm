@@ -6,16 +6,10 @@ var choicesDiv=document.getElementById("choices")
 var nextBtn=document.getElementById("nextBtn")
 var secretBtn=document.getElementById("secretBtn")
 var input=document.getElementById("secretInput")
-var journalDiv=document.getElementById("journal")
 
 var currentScene="opening"
 var textIndex=0
-var inventory=[]
-var doorIsOpen=false
-var hasKey=false
-var playerHealth=100
 var secretUnlocked=false
-var countdownTimer
 
 var scenes={
 opening:{
@@ -124,9 +118,9 @@ choices:[{text:"???",next:"newEnding"}]
 }
 
 function showText(){
-p1.textContent=scenes[currentScene].text[textIndex]||""
-p2.textContent=scenes[currentScene].text[textIndex+1]||""
-p3.textContent=scenes[currentScene].text[textIndex+2]||""
+p1.textContent=scenes[currentScene].text[textIndex]
+p2.textContent=scenes[currentScene].text[textIndex+1]
+p3.textContent=scenes[currentScene].text[textIndex+2]
 }
 
 function nextText(){
@@ -151,16 +145,9 @@ currentScene=choice.next
 textIndex=0
 img.src=scenes[currentScene].img
 nextBtn.style.display="inline"
-var log=document.createElement("p")
-log.textContent="You chose: "+choice.text
-journalDiv.appendChild(log)
 }})(scenes[currentScene].choices[i])
 choicesDiv.appendChild(btn)
 }
-}
-
-function updateInventory(item){
-inventory.push(item)
 }
 
 secretBtn.onclick=function(){
@@ -180,13 +167,6 @@ if(e.key=="ArrowRight")nextText()
 })
 img.addEventListener("mouseover",function(){img.src="hint.jpg"})
 img.addEventListener("mouseout",function(){img.src=scenes[currentScene].img})
-
-countdownTimer=setInterval(function(){
-if(currentScene=="driveBea"&&!hasKey){
-playerHealth-=1
-if(playerHealth<=0){currentScene="friends";textIndex=0;img.src=scenes.friends.img;showText();clearInterval(countdownTimer)}
-}
-},3000)
 
 img.src=scenes[currentScene].img
 showText()
