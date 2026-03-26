@@ -1,20 +1,26 @@
-var p1 = document.getElementById("p1");
-var p2 = document.getElementById("p2");
-var p3 = document.getElementById("p3");
-var img = document.getElementById("story-image");
-var choicesDiv = document.getElementById("choices");
-var nextBtn = document.getElementById("nextBtn");
-var input = document.getElementById("secretInput");
-var secretBtn = document.getElementById("secretBtn");
-var inventoryText = document.getElementById("inventory");
-var currentScene = "opening";
-var textIndex = 0;
-var secretUnlocked = false;
+var p1=document.getElementById("p1")
+var p2=document.getElementById("p2")
+var p3=document.getElementById("p3")
+var img=document.getElementById("story-image")
+var choicesDiv=document.getElementById("choices")
+var nextBtn=document.getElementById("nextBtn")
+var secretBtn=document.getElementById("secretBtn")
+var input=document.getElementById("secretInput")
+var journalDiv=document.getElementById("journal")
 
-var scenes = {
+var currentScene="opening"
+var textIndex=0
+var inventory=[]
+var doorIsOpen=false
+var hasKey=false
+var playerHealth=100
+var secretUnlocked=false
+var countdownTimer
+
+var scenes={
 opening:{
- img:"classroom.jpg",
- text:[
+img:"classroom.jpg",
+text:[
 "Kat: Man, it's been a hellva day today. I hear we get a new student...",
 "Kat: I mean, I sure am popular with tha' ladies. (She is not)",
 "Kat: Maybe this girl will be the one?",
@@ -39,16 +45,15 @@ opening:{
 "*Before Kat can answer, Beatrice approaches her as well.*",
 "Beatrice: Hey, I'm going to Sheets, do you want anything?",
 "Kat: Ah crap...options...ladies...ladies one at a time please...."
-  ],
-  choices:[
-   {text:"Go with Anna", next:"driveAnna"},
-   {text:"Go with Beatrice", next:"driveBea"},
-   {text:"Stay with Special Week", next:"friends"}
-  ]
-},
+],
+choices:[
+{text:"Go with Anna",next:"driveAnna"},
+{text:"Go with Beatrice",next:"driveBea"},
+{text:"Stay with Special Week",next:"friends"}
+]},
 tcwok:{
- img:"tcwok.jpg",
- text:[
+img:"tcwok.jpg",
+text:[
 "Kat: I want lo mein and Thai tea",
 "Anna: noodles or soup",
 "Kat: Maybe love just isn't for me..",
@@ -58,12 +63,11 @@ tcwok:{
 "Ending one:",
 "Yaori",
 "Platonic love SWEEP!!!"
- ],
- end:true
-},
+],
+end:true},
 sheets:{
- img:"sheets.jpg",
- text:[
+img:"sheets.jpg",
+text:[
 "Kat: Oh, can I come with you, Beatrice?",
 "Beatrice: Yeah, cmon.",
 "Kat: I shall drive.",
@@ -73,134 +77,116 @@ sheets:{
 "Beatrice: no",
 "Kat: I'll pay",
 "Ending 2: Cringe Ending"
- ],
- end:true
-},
+],
+end:true},
 friends:{
- img:"lunch.jpg",
- text:[
-"You all have a nice lunch together."
- ],
- end:true
-},
+img:"lunch.jpg",
+text:["You all have a nice lunch together."],
+end:true},
 secret:{
- img:"kat.jpg",
- text:[
-"SECRET ENDING",
-"Kat: You found me...",
-"The End."
- ],
- end:true
-},
+img:"kat.jpg",
+text:["SECRET ENDING","Kat: You found me...","The End."],
+end:true},
+newEnding:{
+img:"kat.jpg",
+text:["NEW ENDING UNLOCKED","Kat: Maybe giving up isn't so bad after all...","Kat smiles and the story concludes.","The End."],
+end:true},
 driveAnna:{
- img:"tcwok.jpg",
- text:[
-"Kat: I shall drive.",
-"*They drive to T.C. Wok*"
- ],
- choices:[
-  {text:"Drive confidently", next:"tcwok"},
-  {text:"Drive badly", next:"awkDrive"}
- ]
-},
+img:"tcwok.jpg",
+text:["Kat: I shall drive.","*They drive to T.C. Wok*"],
+choices:[
+{text:"Drive confidently",next:"tcwok"},
+{text:"Drive badly",next:"awkDrive"}
+]},
 awkDrive:{
- img:"tcwok.jpg",
- text:[
-"Kat: I almost crashed...",
-"Anna: bruh..."
- ],
- choices:[
-  {text:"Continue anyway", next:"tcwok"}
- ]
+img:"tcwok.jpg",
+text:["Kat: I almost crashed...","Anna: bruh..."],
+choices:[{text:"Continue anyway",next:"tcwok"}]
 },
 driveBea:{
- img:"sheets.jpg",
- text:[
-"Kat: I shall drive."
- ],
- choices:[
-  {text:"Park well", next:"sheets"},
-  {text:"Park badly", next:"beaChoice"}
- ]
-},
+img:"sheets.jpg",
+text:["Kat: I shall drive."],
+choices:[
+{text:"Park well",next:"sheets"},
+{text:"Park badly",next:"beaChoice"}
+]},
 beaChoice:{
- img:"sheets.jpg",
- text:[
-"Kat: bad parking...",
-"Beatrice: yeah..."
- ],
- choices:[
-  {text:"Laugh it off", next:"sheets"},
-  {text:"Make it worse", next:"ending2"}
- ]
-},
+img:"sheets.jpg",
+text:["Kat: bad parking...","Beatrice: yeah..."],
+choices:[
+{text:"Laugh it off",next:"sheets"},
+{text:"Make it worse",next:"sheets"}
+]},
 secretTrigger:{
- img:"kat.jpg",
- text:[
-"Something feels off...",
-"A strange option appears..."
- ],
- choices:[
-  {text:"???", next:"secret"}
- ]
+img:"kat.jpg",
+text:["Something feels off...","A strange option appears..."],
+choices:[{text:"???",next:"newEnding"}]
 }
-};
 
 function showText(){
- var scene = scenes[currentScene];
- p1.textContent = scene.text[textIndex] || "";
- p2.textContent = scene.text[textIndex+1] || "";
- p3.textContent = scene.text[textIndex+2] || "";
+p1.textContent=scenes[currentScene].text[textIndex]||""
+p2.textContent=scenes[currentScene].text[textIndex+1]||""
+p3.textContent=scenes[currentScene].text[textIndex+2]||""
 }
 
 function nextText(){
- textIndex += 3;
- var scene = scenes[currentScene];
- if(textIndex >= scene.text.length){
-  nextBtn.style.display = "none";
-  showChoices();
- }
- showText();
+textIndex+=3
+if(textIndex>=scenes[currentScene].text.length){
+nextBtn.style.display="none"
+showChoices()
+return
+}
+showText()
 }
 
 function showChoices(){
- choicesDiv.innerHTML = "";
- var scene = scenes[currentScene];
- if(!scene.choices) return;
- for(var i=0;i<scene.choices.length;i++){
-  var btn = document.createElement("button");
-  btn.textContent = scene.choices[i].text;
-  btn.onclick = (function(choice){
-    return function(){
-      currentScene = choice.next;
-      textIndex = 0;
-      img.src = scenes[currentScene].img;
-      nextBtn.style.display = "inline";
-      showText();
-    };
-  })(scene.choices[i]);
-  choicesDiv.appendChild(btn);
- }
+choicesDiv.innerHTML=""
+if(!scenes[currentScene].choices)return
+for(var i=0;i<scenes[currentScene].choices.length;i++){
+var btn=document.createElement("button")
+btn.textContent=scenes[currentScene].choices[i].text
+btn.onclick=(function(choice){
+return function(){
+currentScene=choice.next
+textIndex=0
+img.src=scenes[currentScene].img
+nextBtn.style.display="inline"
+var log=document.createElement("p")
+log.textContent="You chose: "+choice.text
+journalDiv.appendChild(log)
+}})(scenes[currentScene].choices[i])
+choicesDiv.appendChild(btn)
+}
 }
 
-nextBtn.onclick = nextText;
+function updateInventory(item){
+inventory.push(item)
+}
 
-secretBtn.onclick = function(){
- if(input.value === "prius"){
-  secretUnlocked = true;
-  choicesDiv.innerHTML = "";
-  var btn = document.createElement("button");
-  btn.textContent = "???";
-  btn.onclick = function(){
-   currentScene = "secret";
-   textIndex = 0;
-   img.src = scenes.secret.img;
-   nextBtn.style.display = "inline";
-   showText();
-  };
-  choicesDiv.appendChild(btn);
- }
-};
+secretBtn.onclick=function(){
+if(input.value=="prius"){
+secretUnlocked=true
+choicesDiv.innerHTML=""
+var btn=document.createElement("button")
+btn.textContent="???"
+btn.onclick=function(){currentScene="newEnding";textIndex=0;img.src=scenes.newEnding.img;nextBtn.style.display="inline";showText()}
+choicesDiv.appendChild(btn)
+}
+}
 
-img.src = scenes[currentScene].img;
-showText();
+nextBtn.addEventListener("click",nextText)
+document.addEventListener("keydown",function(e){
+if(e.key=="ArrowRight")nextText()
+})
+img.addEventListener("mouseover",function(){img.src="hint.jpg"})
+img.addEventListener("mouseout",function(){img.src=scenes[currentScene].img})
+
+countdownTimer=setInterval(function(){
+if(currentScene=="driveBea"&&!hasKey){
+playerHealth-=1
+if(playerHealth<=0){currentScene="friends";textIndex=0;img.src=scenes.friends.img;showText();clearInterval(countdownTimer)}
+}
+},3000)
+
+img.src=scenes[currentScene].img
+showText()
